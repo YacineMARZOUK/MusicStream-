@@ -1,1 +1,81 @@
-<p>library works!</p>
+<div class="max-w-5xl mx-auto p-8">
+  <header class="flex justify-between items-center mb-10">
+    <h2 class="text-4xl font-black text-white tracking-tighter">Ma Bibliothèque</h2>
+    <span class="bg-surface px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest text-gray-400 border border-gray-800">
+      {{ trackService.tracks().length }} Titres
+    </span>
+  </header>
+
+  <section class="bg-[#181818] p-8 rounded-xl shadow-2xl border border-white/5 mb-12">
+    <h3 class="text-lg font-bold mb-6 text-gray-300">Ajouter un nouveau titre</h3>
+    
+    <form [formGroup]="trackForm" (ngSubmit)="$event.preventDefault(); onSubmit()" class="space-y-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="flex flex-col space-y-2">
+          <label class="text-xs font-bold uppercase text-gray-500 ml-1">Titre de la chanson</label>
+          <input formControlName="title" placeholder="Ex: Moonlight" 
+            class="bg-[#282828] text-white p-3 rounded-md focus:outline-none focus:ring-2 focus:ring-brand border-none transition">
+        </div>
+
+        <div class="flex flex-col space-y-2">
+          <label class="text-xs font-bold uppercase text-gray-500 ml-1">Artiste</label>
+          <input formControlName="artist" placeholder="Ex: L'Artiste" 
+            class="bg-[#282828] text-white p-3 rounded-md focus:outline-none focus:ring-2 focus:ring-brand border-none transition">
+        </div>
+
+        <div class="flex flex-col space-y-2">
+          <label class="text-xs font-bold uppercase text-gray-500 ml-1">Genre</label>
+          <select formControlName="category" class="bg-[#282828] text-white p-3 rounded-md focus:outline-none focus:ring-2 focus:ring-brand border-none appearance-none">
+            <option value="pop">Pop</option>
+            <option value="rock">Rock</option>
+            <option value="rap">Rap</option>
+          </select>
+        </div>
+
+        <div class="flex flex-col space-y-2">
+          <label class="text-xs font-bold uppercase text-gray-500 ml-1">Fichier Audio (MP3/WAV)</label>
+          <input type="file" (change)="onFileChange($event)" accept=".mp3,.wav,.ogg" 
+            class="text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-bold file:bg-brand file:text-black hover:file:bg-green-400 cursor-pointer">
+        </div>
+      </div>
+
+      <div class="flex justify-end pt-4">
+        <button type="submit" [disabled]="trackForm.invalid"
+          class="bg-brand text-black font-extrabold py-3 px-10 rounded-full hover:scale-105 active:scale-95 transition disabled:opacity-50 disabled:hover:scale-100">
+          PUBLIER LE TITRE
+        </button>
+      </div>
+    </form>
+  </section>
+
+  <div class="space-y-2">
+    <div class="grid grid-cols-12 px-4 py-2 text-gray-500 text-xs font-bold uppercase border-b border-white/5 mb-4">
+      <div class="col-span-1">#</div>
+      <div class="col-span-6">Titre / Artiste</div>
+      <div class="col-span-3">Genre</div>
+      <div class="col-span-2 text-right">Action</div>
+    </div>
+
+    @for (track of trackService.tracks(); track track.id; let i = $index) {
+      <div class="grid grid-cols-12 items-center px-4 py-3 rounded-md hover:bg-white/10 transition group">
+        <div class="col-span-1 text-gray-400 font-medium">{{ i + 1 }}</div>
+        <div class="col-span-6">
+          <p class="font-bold text-white group-hover:text-brand transition">{{ track.title }}</p>
+          <p class="text-sm text-gray-400">{{ track.artist }}</p>
+        </div>
+        <div class="col-span-3">
+          <span class="bg-white/5 px-3 py-1 rounded-full text-xs text-gray-300">{{ track.category }}</span>
+        </div>
+        <div class="col-span-2 text-right">
+          <button class="bg-brand/10 text-brand p-2 rounded-full opacity-0 group-hover:opacity-100 transition">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          </button>
+        </div>
+      </div>
+    } @empty {
+      <div class="text-center py-20 bg-surface/50 rounded-xl border border-dashed border-gray-800">
+        <p class="text-gray-500">Votre bibliothèque est vide. Commencez par ajouter une chanson !</p>
+      </div>
+    }
+  </div>
+</div>
