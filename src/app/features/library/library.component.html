@@ -67,9 +67,9 @@
           <span class="bg-white/5 px-3 py-1 rounded-full text-xs text-gray-300">{{ track.category }}</span>
         </div>
         <div class="col-span-2 text-right">
-          <button class="bg-brand/10 text-brand p-2 rounded-full opacity-0 group-hover:opacity-100 transition">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-          </button>
+         <button (click)="playTrack(track)" class="bg-brand/10 text-brand p-2 rounded-full opacity-0 group-hover:opacity-100 transition">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+         </button>
         </div>
       </div>
     } @empty {

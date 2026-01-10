@@ -1,9 +1,10 @@
 import { Component, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { PlayerBarComponent } from './shared/components/player-bar/player-bar.component';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, PlayerBarComponent],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
