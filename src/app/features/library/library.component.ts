@@ -45,7 +45,7 @@ export class LibraryComponent {
   }
 
   // ← AJOUTEZ CETTE FONCTION
-   //playTrack(track: Track) {
-    // this.playerService.playTrack(track);
- //  }
+   playTrack(track: Track) {
+     this.playerService.playTrack(track);
+   }
 }
