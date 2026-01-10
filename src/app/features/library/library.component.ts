@@ -2,7 +2,7 @@ import { Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TrackService } from '../../core/services/TrackService';
 import { Track } from '../../shared/components/models/track.model';
-import { AudioPlayerService } from '../../core/services/audio-player'; // ← AJOUTEZ CECI
+import { AudioPlayerService } from '../../core/services/audio-player';
 
 @Component({
   selector: 'app-library',
@@ -13,7 +13,9 @@ import { AudioPlayerService } from '../../core/services/audio-player'; // ← AJ
 export class LibraryComponent {
   private fb = inject(FormBuilder);
   trackService = inject(TrackService);
-  playerService = inject(AudioPlayerService); // ← AJOUTEZ CECI
+  playerService = inject(AudioPlayerService);
+  
+  private selectedFile: File | null = null;
 
   trackForm = this.fb.group({
     title: ['', [Validators.required, Validators.maxLength(50)]],
@@ -25,27 +27,41 @@ export class LibraryComponent {
   onFileChange(event: any) {
     const file = event.target.files[0];
     if (file && file.size <= 10 * 1024 * 1024) {
+      this.selectedFile = file;
       this.trackForm.patchValue({ file: file });
+      this.trackForm.get('file')?.updateValueAndValidity();
     } else {
       alert("Fichier trop lourd (max 10MB)");
+      this.selectedFile = null;
+      this.trackForm.patchValue({ file: null });
     }
   }
 
-  onSubmit() {
-    if (this.trackForm.valid) {
-      const newTrack: any = {
+  async onSubmit() {
+    if (this.trackForm.valid && this.selectedFile) {
+      const newTrack: Track = {
         id: crypto.randomUUID(),
-        ...this.trackForm.value,
+        title: this.trackForm.value.title!,
+        artist: this.trackForm.value.artist!,
+        category: this.trackForm.value.category as 'pop' | 'rock' | 'rap' | 'jazz' | 'other',
+        fileData: this.selectedFile, // Le File hérite de Blob, donc c'est OK
         addedDate: new Date(),
         duration: 0
       };
-      this.trackService.addTrack(newTrack);
-      this.trackForm.reset();
+      
+      await this.trackService.addTrack(newTrack);
+      
+      // Reset du formulaire
+      this.trackForm.reset({ category: 'pop' });
+      this.selectedFile = null;
+      
+      // Reset de l'input file (important!)
+      const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+      if (fileInput) fileInput.value = '';
     }
   }
 
-  // ← AJOUTEZ CETTE FONCTION
-   playTrack(track: Track) {
-     this.playerService.playTrack(track);
-   }
+  playTrack(track: Track) {
+    this.playerService.playTrack(track);
+  }
 }

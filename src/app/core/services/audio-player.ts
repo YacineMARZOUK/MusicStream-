@@ -1,11 +1,11 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { Track } from '../../shared/components/models/track.model';
 
 @Injectable({ providedIn: 'root' })
 export class AudioPlayerService {
   private audio = new Audio();
+  private currentBlobUrl: string | null = null; // Pour nettoyer l'URL
   
-  // États réactifs avec Signals
   currentTrack = signal<Track | null>(null);
   isPlaying = signal<boolean>(false);
   currentTime = signal<number>(0);
@@ -13,20 +13,26 @@ export class AudioPlayerService {
   volume = signal<number>(0.5);
 
   constructor() {
-    // Écouter les événements natifs de l'élément Audio
     this.audio.ontimeupdate = () => this.currentTime.set(this.audio.currentTime);
     this.audio.onloadedmetadata = () => this.duration.set(this.audio.duration);
     this.audio.onplay = () => this.isPlaying.set(true);
     this.audio.onpause = () => this.isPlaying.set(false);
     this.audio.onended = () => this.next();
+    
+    // Définir le volume initial
+    this.audio.volume = 0.5;
   }
 
   playTrack(track: Track) {
     if (this.currentTrack()?.id !== track.id) {
+      // Libérer l'ancienne URL si elle existe
+      if (this.currentBlobUrl) {
+        URL.revokeObjectURL(this.currentBlobUrl);
+      }
+      
       this.currentTrack.set(track);
-      // Créer une URL temporaire pour le Blob (fichier stocké)
-      const url = URL.createObjectURL(track.fileData);
-      this.audio.src = url;
+      this.currentBlobUrl = URL.createObjectURL(track.fileData);
+      this.audio.src = this.currentBlobUrl;
     }
     this.audio.play();
   }
@@ -48,7 +54,13 @@ export class AudioPlayerService {
     this.volume.set(val);
   }
 
-  // Fonctions pour le prochain/précédent (à lier avec TrackService plus tard)
-  next() { console.log('Next track'); }
-  previous() { console.log('Previous track'); }
+  next() { 
+    console.log('Next track'); 
+    // TODO: Implémenter avec la playlist
+  }
+  
+  previous() { 
+    console.log('Previous track'); 
+    // TODO: Implémenter avec la playlist
+  }
 }
