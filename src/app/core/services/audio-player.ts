@@ -4,7 +4,7 @@ import { Track } from '../../shared/components/models/track.model';
 @Injectable({ providedIn: 'root' })
 export class AudioPlayerService {
   private audio = new Audio();
-  private currentBlobUrl: string | null = null; // Pour nettoyer l'URL
+  private currentBlobUrl: string | null = null;
   
   currentTrack = signal<Track | null>(null);
   isPlaying = signal<boolean>(false);
@@ -18,30 +18,46 @@ export class AudioPlayerService {
     this.audio.onplay = () => this.isPlaying.set(true);
     this.audio.onpause = () => this.isPlaying.set(false);
     this.audio.onended = () => this.next();
-    
-    // Définir le volume initial
     this.audio.volume = 0.5;
   }
 
   playTrack(track: Track) {
     if (this.currentTrack()?.id !== track.id) {
-      // Libérer l'ancienne URL si elle existe
       if (this.currentBlobUrl) {
         URL.revokeObjectURL(this.currentBlobUrl);
       }
       
       this.currentTrack.set(track);
-      this.currentBlobUrl = URL.createObjectURL(track.fileData);
+      
+      // Vérifier si fileData est bien un Blob
+      console.log('Type de fileData:', track.fileData);
+      console.log('Est un Blob?', track.fileData instanceof Blob);
+      
+      // S'assurer que c'est bien un Blob
+      let blob: Blob;
+      if (track.fileData instanceof Blob) {
+        blob = track.fileData;
+      } else {
+        // Si ce n'est pas un Blob, essayer de le convertir
+        console.warn('fileData n\'est pas un Blob, tentative de conversion');
+        blob = new Blob([track.fileData]);
+      }
+      
+      this.currentBlobUrl = URL.createObjectURL(blob);
       this.audio.src = this.currentBlobUrl;
     }
-    this.audio.play();
+    
+    // Attendre un peu avant de jouer pour éviter les interruptions
+    this.audio.play().catch(err => {
+      console.error('Erreur de lecture:', err);
+    });
   }
 
   togglePlay() {
     if (this.isPlaying()) {
       this.audio.pause();
     } else {
-      this.audio.play();
+      this.audio.play().catch(err => console.error('Erreur play:', err));
     }
   }
 
@@ -55,12 +71,10 @@ export class AudioPlayerService {
   }
 
   next() { 
-    console.log('Next track'); 
-    // TODO: Implémenter avec la playlist
+    console.log('Next track');
   }
   
   previous() { 
-    console.log('Previous track'); 
-    // TODO: Implémenter avec la playlist
+    console.log('Previous track');
   }
-}
+} 
