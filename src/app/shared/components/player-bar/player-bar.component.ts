@@ -1,11 +1,12 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AudioPlayerService } from '../../../core/services/audio-player';
+import { DurationPipe } from '../../pipes/duration.pipe';
 
 @Component({
   selector: 'app-player-bar',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, DurationPipe],
   templateUrl: './player-bar.component.html'
 })
 export class PlayerBarComponent {

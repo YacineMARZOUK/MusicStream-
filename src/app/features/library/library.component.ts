@@ -3,11 +3,12 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TrackService } from '../../core/services/TrackService';
 import { Track } from '../../shared/components/models/track.model';
 import { AudioPlayerService } from '../../core/services/audio-player';
+import { DurationPipe } from '../../shared/pipes/duration.pipe';
 
 @Component({
   selector: 'app-library',
   standalone: true,
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, DurationPipe],
   templateUrl: './library.component.html'
 })
 export class LibraryComponent {

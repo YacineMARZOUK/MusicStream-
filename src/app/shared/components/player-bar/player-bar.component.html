@@ -22,13 +22,15 @@
       </div>
       
       <div class="flex items-center space-x-2 w-full">
-        <span class="text-[10px] text-gray-500 w-8 text-right">{{ formatTime(playerService.currentTime()) }}</span>
+        <span class="text-[10px] text-gray-500 w-8 text-right">{{ playerService.currentTime() | duration }}</span>
+        
         <input type="range" 
                [max]="playerService.duration()" 
                [value]="playerService.currentTime()"
                (input)="playerService.seek($any($event.target).value)"
                class="flex-1 h-1 bg-[#4d4d4d] rounded-lg appearance-none cursor-pointer accent-brand hover:accent-green-400">
-        <span class="text-[10px] text-gray-500 w-8">{{ formatTime(playerService.duration()) }}</span>
+        
+        <span class="text-[10px] text-gray-500 w-8">{{ playerService.duration() | duration }}</span>
       </div>
     </div>
 
