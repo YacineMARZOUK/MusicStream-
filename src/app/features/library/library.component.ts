@@ -27,29 +27,31 @@ export class LibraryComponent {
   });
 
   onFileChange(event: any) {
-  const file = event.target.files[0];
-  if (file && file.size <= 10 * 1024 * 1024) {
-    this.selectedFile = file;
-    
-    // CALCUL DE LA DURÉE
-    const audio = new Audio();
-    const reader = new FileReader();
-    
-    reader.onload = (e: any) => {
-      audio.src = e.target.result;
-      audio.onloadedmetadata = () => {
-        this.currentFileDuration = Math.round(audio.duration);
-        console.log('Durée détectée :', this.currentFileDuration);
+    const file = event.target.files[0];
+    if (file && file.size <= 10 * 1024 * 1024) {
+      this.selectedFile = file;
+      
+      // CALCUL DE LA DURÉE
+      const audio = new Audio();
+      const reader = new FileReader();
+      
+      reader.onload = (e: any) => {
+        audio.src = e.target.result;
+        audio.onloadedmetadata = () => {
+          this.currentFileDuration = Math.round(audio.duration);
+          console.log('Durée détectée :', this.currentFileDuration, 'secondes');
+        };
       };
-    };
-    reader.readAsDataURL(file);
+      reader.readAsDataURL(file);
 
-    this.trackForm.patchValue({ file: file });
-  } else {
-    alert("Fichier trop lourd (max 10MB)");
-    this.selectedFile = null;
+      this.trackForm.patchValue({ file: file });
+      this.trackForm.get('file')?.updateValueAndValidity();
+    } else {
+      alert("Fichier trop lourd (max 10MB)");
+      this.selectedFile = null;
+      this.currentFileDuration = 0;
+    }
   }
-}
 
   async onSubmit() {
     if (this.trackForm.valid && this.selectedFile) {
@@ -58,18 +60,18 @@ export class LibraryComponent {
         title: this.trackForm.value.title!,
         artist: this.trackForm.value.artist!,
         category: this.trackForm.value.category as 'pop' | 'rock' | 'rap' | 'jazz' | 'other',
-        fileData: this.selectedFile, // Le File hérite de Blob, donc c'est OK
+        fileData: this.selectedFile,
         addedDate: new Date(),
-        duration: 0
+        duration: this.currentFileDuration // ← ICI ! Utilisez la durée calculée
       };
       
       await this.trackService.addTrack(newTrack);
       
-      // Reset du formulaire
+      // Reset
       this.trackForm.reset({ category: 'pop' });
       this.selectedFile = null;
+      this.currentFileDuration = 0; // Reset aussi la durée
       
-      // Reset de l'input file (important!)
       const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
       if (fileInput) fileInput.value = '';
     }

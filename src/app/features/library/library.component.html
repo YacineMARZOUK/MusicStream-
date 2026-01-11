@@ -51,24 +51,30 @@
   <div class="space-y-2">
     <div class="grid grid-cols-12 px-4 py-2 text-gray-500 text-xs font-bold uppercase border-b border-white/5 mb-4">
       <div class="col-span-1">#</div>
-      <div class="col-span-6">Titre / Artiste</div>
-      <div class="col-span-3">Genre</div>
+      <div class="col-span-5">Titre / Artiste</div>
+      <div class="col-span-2">Genre</div>
+      <div class="col-span-2 text-center">Durée</div>
       <div class="col-span-2 text-right">Action</div>
     </div>
 
     @for (track of trackService.tracks(); track track.id; let i = $index) {
       <div class="grid grid-cols-12 items-center px-4 py-3 rounded-md hover:bg-white/10 transition group">
         <div class="col-span-1 text-gray-400 font-medium">{{ i + 1 }}</div>
-        <div class="col-span-6">
+        <div class="col-span-5">
           <p class="font-bold text-white group-hover:text-brand transition">{{ track.title }}</p>
           <p class="text-sm text-gray-400">{{ track.artist }}</p>
         </div>
-        <div class="col-span-3">
+        <div class="col-span-2">
           <span class="bg-white/5 px-3 py-1 rounded-full text-xs text-gray-300">{{ track.category }}</span>
         </div>
+        
+        <div class="col-span-2 text-center text-sm text-gray-400 font-mono">
+          {{ track.duration | duration }}
+        </div>
+
         <div class="col-span-2 text-right">
          <button (click)="playTrack(track)" 
-             class="bg-brand/10 text-brand p-2 rounded-full opacity-0 group-hover:opacity-100 transition">
+             class="bg-brand/10 text-brand p-2 rounded-full opacity-0 group-hover:opacity-100 transition hover:bg-brand hover:text-black">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M8 5v14l11-7z"/>
             </svg>
