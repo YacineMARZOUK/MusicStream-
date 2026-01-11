@@ -16,6 +16,7 @@ export class LibraryComponent {
   playerService = inject(AudioPlayerService);
   
   private selectedFile: File | null = null;
+  private currentFileDuration: number = 0;
 
   trackForm = this.fb.group({
     title: ['', [Validators.required, Validators.maxLength(50)]],
@@ -25,17 +26,29 @@ export class LibraryComponent {
   });
 
   onFileChange(event: any) {
-    const file = event.target.files[0];
-    if (file && file.size <= 10 * 1024 * 1024) {
-      this.selectedFile = file;
-      this.trackForm.patchValue({ file: file });
-      this.trackForm.get('file')?.updateValueAndValidity();
-    } else {
-      alert("Fichier trop lourd (max 10MB)");
-      this.selectedFile = null;
-      this.trackForm.patchValue({ file: null });
-    }
+  const file = event.target.files[0];
+  if (file && file.size <= 10 * 1024 * 1024) {
+    this.selectedFile = file;
+    
+    // CALCUL DE LA DURÉE
+    const audio = new Audio();
+    const reader = new FileReader();
+    
+    reader.onload = (e: any) => {
+      audio.src = e.target.result;
+      audio.onloadedmetadata = () => {
+        this.currentFileDuration = Math.round(audio.duration);
+        console.log('Durée détectée :', this.currentFileDuration);
+      };
+    };
+    reader.readAsDataURL(file);
+
+    this.trackForm.patchValue({ file: file });
+  } else {
+    alert("Fichier trop lourd (max 10MB)");
+    this.selectedFile = null;
   }
+}
 
   async onSubmit() {
     if (this.trackForm.valid && this.selectedFile) {
