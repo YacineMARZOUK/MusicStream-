@@ -23,4 +23,7 @@ export class TrackService {
     await this.storageService.saveTrack(track);
     this.tracks.update(all => [...all, track]); // Mise à jour auto de l'UI
   }
+  getTrackById(id: string): Track | undefined {
+  return this.tracks().find(t => t.id === id);
+  }
 }
