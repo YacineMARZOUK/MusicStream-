@@ -1,48 +1,108 @@
-<div class="min-h-screen bg-gradient-to-b from-[#282828] to-black p-8 text-white">
+<div class="min-h-screen bg-gradient-to-br from-[#1a1a1a] via-[#282828] to-black p-8 pb-32 text-white relative overflow-hidden">
   
-  <a routerLink="/library" class="inline-flex items-center text-gray-400 hover:text-white mb-8 transition">
-    <span class="mr-2">←</span> Retour à la bibliothèque
-  </a>
+  <!-- Background decorative elements -->
+  <div class="absolute top-0 left-0 w-96 h-96 bg-brand/5 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
+  <div class="absolute bottom-0 right-0 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl translate-x-1/2 translate-y-1/2"></div>
+  
+  <div class="relative z-10 max-w-7xl mx-auto">
+    <!-- Bouton retour -->
+    <a routerLink="/library" class="inline-flex items-center gap-2 text-gray-400 hover:text-white mb-12 transition-all duration-300 group">
+      <span class="transform group-hover:-translate-x-1 transition-transform duration-300">←</span> 
+      <span class="font-medium">Retour à la bibliothèque</span>
+    </a>
 
-  @if (track(); as t) {
-    <div class="flex flex-col md:flex-row items-end space-y-6 md:space-y-0 md:space-x-8">
-      
-      <div class="w-64 h-64 bg-[#181818] shadow-2xl rounded-lg flex items-center justify-center text-6xl text-brand border border-white/5">
-        ♫
-      </div>
-
-      <div class="flex-1">
-        <span class="text-xs font-bold uppercase tracking-widest text-gray-300">Titre</span>
-        <h1 class="text-6xl md:text-8xl font-black mt-2 mb-6 tracking-tighter">{{ t.title }}</h1>
+    @if (track(); as t) {
+      <!-- En-tête principal -->
+      <div class="flex flex-col lg:flex-row items-start lg:items-end gap-8 mb-12">
         
-        <div class="flex items-center space-x-2 text-sm font-bold">
-          <span class="text-brand">{{ t.artist }}</span>
-          <span class="text-gray-400">•</span>
-          <span>{{ t.category | uppercase }}</span>
-          <span class="text-gray-400">•</span>
-          <span class="text-gray-400 font-normal">Ajouté le {{ t.addedDate | date:'dd/MM/yyyy' }}</span>
+        <!-- Pochette de l'album -->
+        <div class="relative group">
+          <div class="w-72 h-72 bg-gradient-to-br from-[#2a2a2a] to-[#181818] shadow-2xl rounded-2xl flex items-center justify-center text-7xl text-brand border border-white/10 transition-all duration-500 group-hover:scale-105 group-hover:shadow-[0_20px_60px_rgba(29,185,84,0.3)]">
+            ♫
+          </div>
+          <!-- Effet de lueur -->
+          <div class="absolute inset-0 bg-brand/20 rounded-2xl blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10"></div>
+        </div>
+
+        <!-- Informations de la piste -->
+        <div class="flex-1 space-y-4">
+          <span class="inline-block px-3 py-1 text-xs font-bold uppercase tracking-widest text-gray-300 bg-white/5 rounded-full border border-white/10">
+            Titre
+          </span>
+          
+          <h1 class="text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent leading-tight">
+            {{ t.title }}
+          </h1>
+          
+          <!-- Métadonnées -->
+          <div class="flex flex-wrap items-center gap-3 text-sm">
+            <span class="text-brand font-bold hover:underline cursor-pointer transition">
+              {{ t.artist }}
+            </span>
+            <span class="w-1 h-1 bg-gray-500 rounded-full"></span>
+            <span class="px-3 py-1 bg-brand/10 text-brand rounded-full font-semibold border border-brand/20">
+              {{ t.category | uppercase }}
+            </span>
+            <span class="w-1 h-1 bg-gray-500 rounded-full"></span>
+            <span class="text-gray-400 font-normal">
+              Ajouté le {{ t.addedDate | date:'dd/MM/yyyy' }}
+            </span>
+          </div>
         </div>
       </div>
-    </div>
 
-    <div class="mt-10 flex items-center space-x-6">
-      <button (click)="playerService.playTrack(t)" 
-              class="w-16 h-16 bg-brand text-black rounded-full flex items-center justify-center hover:scale-105 transition shadow-lg">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-      </button>
-      <span class="text-2xl text-gray-400 font-mono">{{ t.duration | duration }}</span>
-    </div>
+      <!-- Contrôles de lecture -->
+      <div class="flex items-center gap-8 mb-16">
+        <button (click)="playerService.playTrack(t)" 
+                class="w-20 h-20 bg-brand text-black rounded-full flex items-center justify-center hover:scale-110 active:scale-95 transition-all duration-300 shadow-2xl hover:shadow-[0_10px_40px_rgba(29,185,84,0.5)] relative group">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 ml-1" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M8 5v14l11-7z"/>
+          </svg>
+          <!-- Effet de pulsation -->
+          <div class="absolute inset-0 rounded-full bg-brand animate-ping opacity-20 group-hover:opacity-30"></div>
+        </button>
+        
+        <div class="flex flex-col">
+          <span class="text-3xl font-bold font-mono text-white">
+            {{ t.duration | duration }}
+          </span>
+          <span class="text-xs text-gray-500 uppercase tracking-wide">
+            Durée
+          </span>
+        </div>
+      </div>
 
-    <div class="mt-12 max-w-2xl">
-      <h3 class="text-xl font-bold mb-4 border-b border-white/10 pb-2">À propos</h3>
-      <p class="text-gray-400 leading-relaxed italic">
-        {{ t.description || 'Aucune description disponible pour ce titre.' }}
-      </p>
-    </div>
+      <!-- Section À propos -->
+      <div class="max-w-3xl bg-white/5 backdrop-blur-sm rounded-2xl p-8 border border-white/10 shadow-xl">
+        <div class="flex items-center gap-3 mb-6">
+          <div class="w-1 h-6 bg-brand rounded-full"></div>
+          <h3 class="text-2xl font-bold">À propos</h3>
+        </div>
+        
+        <p class="text-gray-300 leading-relaxed text-lg">
+          {{ t.description || 'Aucune description disponible pour ce titre.' }}
+        </p>
+        
+        @if (!t.description) {
+          <div class="mt-4 p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
+            <p class="text-yellow-200 text-sm italic">
+              💡 La description de cette piste n'a pas encore été ajoutée.
+            </p>
+          </div>
+        }
+      </div>
 
-  } @else {
-    <div class="text-center py-20">
-      <h2 class="text-2xl text-gray-500 italic">Chanson introuvable...</h2>
-    </div>
-  }
+    } @else {
+      <!-- État vide -->
+      <div class="text-center py-32">
+        <div class="inline-block p-8 bg-white/5 rounded-3xl border border-white/10 backdrop-blur-sm">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-24 w-24 mx-auto mb-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <h2 class="text-3xl font-bold text-gray-400 mb-2">Chanson introuvable</h2>
+          <p class="text-gray-500">Cette piste n'existe pas ou a été supprimée.</p>
+        </div>
+      </div>
+    }
+  </div>
 </div>
