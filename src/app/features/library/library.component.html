@@ -61,8 +61,10 @@
       <div class="grid grid-cols-12 items-center px-4 py-3 rounded-md hover:bg-white/10 transition group">
         <div class="col-span-1 text-gray-400 font-medium">{{ i + 1 }}</div>
         <div class="col-span-5">
-          <p class="font-bold text-white group-hover:text-brand transition">{{ track.title }}</p>
-          <p class="text-sm text-gray-400">{{ track.artist }}</p>
+          <a [routerLink]="['/track', track.id]" class="cursor-pointer group">
+           <p class="font-bold text-white group-hover:text-brand transition">{{ track.title }}</p>
+           <p class="text-sm text-gray-400 group-hover:text-gray-300">{{ track.artist }}</p>
+          </a>
         </div>
         <div class="col-span-2">
           <span class="bg-white/5 px-3 py-1 rounded-full text-xs text-gray-300">{{ track.category }}</span>

@@ -4,11 +4,12 @@ import { TrackService } from '../../core/services/TrackService';
 import { Track } from '../../shared/components/models/track.model';
 import { AudioPlayerService } from '../../core/services/audio-player';
 import { DurationPipe } from '../../shared/pipes/duration.pipe';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-library',
   standalone: true,
-  imports: [ReactiveFormsModule, DurationPipe],
+  imports: [ReactiveFormsModule, DurationPipe, RouterLink],
   templateUrl: './library.component.html'
 })
 export class LibraryComponent {
