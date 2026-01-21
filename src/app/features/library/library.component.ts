@@ -20,11 +20,15 @@ export class LibraryComponent {
   private selectedFile: File | null = null;
   private currentFileDuration: number = 0;
 
+  // Propriétés pour la gestion de l'édition
+  isEditing = false;
+  currentTrackId: string | null = null;
+
   trackForm = this.fb.group({
     title: ['', [Validators.required, Validators.maxLength(50)]],
     artist: ['', Validators.required],
     category: ['pop', Validators.required],
-    file: [null, Validators.required]
+    file: [null, [Validators.required]]
   });
 
   onFileChange(event: any) {
@@ -32,7 +36,6 @@ export class LibraryComponent {
     if (file && file.size <= 10 * 1024 * 1024) {
       this.selectedFile = file;
       
-      // CALCUL DE LA DURÉE
       const audio = new Audio();
       const reader = new FileReader();
       
@@ -54,27 +57,74 @@ export class LibraryComponent {
     }
   }
 
+  // Fonction pour charger les données dans le formulaire en mode édition
+  editTrack(track: Track) {
+    this.isEditing = true;
+    this.currentTrackId = track.id;
+    
+    this.trackForm.patchValue({
+      title: track.title,
+      artist: track.artist,
+      category: track.category
+    });
+    
+    // Le fichier n'est plus obligatoire car on garde l'ancien si rien n'est choisi
+    this.trackForm.get('file')?.clearValidators();
+    this.trackForm.get('file')?.updateValueAndValidity();
+    
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  cancelEdit() {
+    this.isEditing = false;
+    this.currentTrackId = null;
+    this.trackForm.reset({ category: 'pop' });
+    this.selectedFile = null;
+    this.currentFileDuration = 0;
+    
+    // Réinitialiser les validateurs pour le mode ajout
+    this.trackForm.get('file')?.setValidators([Validators.required]);
+    this.trackForm.get('file')?.updateValueAndValidity();
+    
+    const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+    if (fileInput) fileInput.value = '';
+  }
+
   async onSubmit() {
-    if (this.trackForm.valid && this.selectedFile) {
-      const newTrack: Track = {
-        id: crypto.randomUUID(),
-        title: this.trackForm.value.title!,
-        artist: this.trackForm.value.artist!,
-        category: this.trackForm.value.category as 'pop' | 'rock' | 'rap' | 'jazz' | 'other',
-        fileData: this.selectedFile,
-        addedDate: new Date(),
-        duration: this.currentFileDuration // ← ICI ! Utilisez la durée calculée
-      };
-      
-      await this.trackService.addTrack(newTrack);
-      
-      // Reset
-      this.trackForm.reset({ category: 'pop' });
-      this.selectedFile = null;
-      this.currentFileDuration = 0; // Reset aussi la durée
-      
-      const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
-      if (fileInput) fileInput.value = '';
+    if (this.trackForm.valid) {
+      const formValues = this.trackForm.value;
+
+      if (this.isEditing && this.currentTrackId) {
+        // --- MODE ÉDITION ---
+        const updates: Partial<Track> = {
+          title: formValues.title!,
+          artist: formValues.artist!,
+          category: formValues.category as any,
+        };
+        
+        if (this.selectedFile) {
+          updates.fileData = this.selectedFile;
+          updates.duration = this.currentFileDuration;
+        }
+
+        await this.trackService.updateTrack(this.currentTrackId, updates);
+        this.cancelEdit();
+      } 
+      else if (this.selectedFile) {
+        // --- MODE AJOUT ---
+        const newTrack: Track = {
+          id: crypto.randomUUID(),
+          title: formValues.title!,
+          artist: formValues.artist!,
+          category: formValues.category as any,
+          fileData: this.selectedFile,
+          addedDate: new Date(),
+          duration: this.currentFileDuration
+        };
+        
+        await this.trackService.addTrack(newTrack);
+        this.cancelEdit(); // Utilise cancelEdit pour nettoyer le formulaire
+      }
     }
   }
 
@@ -82,19 +132,17 @@ export class LibraryComponent {
     this.playerService.playTrack(track);
   }
 
-confirmDelete(track: Track) {
-  if (confirm(`Voulez-vous vraiment supprimer "${track.title}" ?`)) {
-    this.trackService.deleteTrack(track.id);
+  confirmDelete(track: Track) {
+    if (confirm(`Voulez-vous vraiment supprimer "${track.title}" ?`)) {
+      this.trackService.deleteTrack(track.id);
+    }
   }
-}
 
+  updateSearch(query: string) {
+    this.trackService.searchQuery.set(query);
+  }
 
-updateSearch(query: string) {
-  this.trackService.searchQuery.set(query);
-}
-
-updateCategory(category: string) {
-  this.trackService.selectedCategory.set(category);
-}
-  
+  updateCategory(category: string) {
+    this.trackService.selectedCategory.set(category);
+  }
 }

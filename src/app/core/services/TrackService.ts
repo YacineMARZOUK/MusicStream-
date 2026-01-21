@@ -45,6 +45,28 @@ export class TrackService {
     console.error('Erreur lors de la suppression :', error);
   }
 }
+  async updateTrack(id: string, updatedData: Partial<Track>) {
+  const allTracks = this.tracks();
+  const index = allTracks.findIndex(t => t.id === id);
+
+  if (index !== -1) {
+    // On fusionne l'ancien track avec les nouvelles données
+    const updatedTrack = { ...allTracks[index], ...updatedData };
+    
+    try {
+      
+      await this.storageService.saveTrack(updatedTrack); 
+      
+      // Mise à jour du signal pour rafraîchir l'interface
+      this.tracks.update(tracks => 
+        tracks.map(t => t.id === id ? updatedTrack : t)
+      );
+      console.log('Update réussi dans le service');
+    } catch (error) {
+      console.error('Erreur Storage pendant l update:', error);
+    }
+  }
+}
 
   filteredTracks = computed(() => {
     const query = this.searchQuery().toLowerCase();

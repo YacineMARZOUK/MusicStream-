@@ -20,15 +20,18 @@ export class StorageService {
 
   // Sauvegarder une musique
   async saveTrack(track: Track): Promise<void> {
-    const db = await this.openDB();
-    return new Promise((resolve, reject) => {
-      const transaction = db.transaction('tracks', 'readwrite');
-      const store = transaction.objectStore('tracks');
-      const request = store.add(track);
-      request.onsuccess = () => resolve();
-      request.onerror = () => reject('Erreur lors de la sauvegarde du track');
-    });
-  }
+  const db = await this.openDB();
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction('tracks', 'readwrite');
+    const store = transaction.objectStore('tracks');
+    
+
+    const request = store.put(track); 
+    
+    request.onsuccess = () => resolve();
+    request.onerror = () => reject('Erreur lors de la sauvegarde/mise à jour');
+  });
+}
 
   // Supprimer une musique
   async deleteTrack(id: string): Promise<void> {
