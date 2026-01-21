@@ -1,8 +1,12 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, inject } from '@angular/core';
 import { Track } from '../../shared/components/models/track.model';
+import { TrackService } from './TrackService'; 
 
 @Injectable({ providedIn: 'root' })
 export class AudioPlayerService {
+  
+  private trackService = inject(TrackService);
+  
   private audio = new Audio();
   private currentBlobUrl: string | null = null;
   
@@ -17,7 +21,7 @@ export class AudioPlayerService {
     this.audio.onloadedmetadata = () => this.duration.set(this.audio.duration);
     this.audio.onplay = () => this.isPlaying.set(true);
     this.audio.onpause = () => this.isPlaying.set(false);
-    this.audio.onended = () => this.next();
+    this.audio.onended = () => this.next(); 
     this.audio.volume = 0.5;
   }
 
@@ -29,17 +33,10 @@ export class AudioPlayerService {
       
       this.currentTrack.set(track);
       
-      // Vérifier si fileData est bien un Blob
-      console.log('Type de fileData:', track.fileData);
-      console.log('Est un Blob?', track.fileData instanceof Blob);
-      
-      // S'assurer que c'est bien un Blob
       let blob: Blob;
       if (track.fileData instanceof Blob) {
         blob = track.fileData;
       } else {
-        // Si ce n'est pas un Blob, essayer de le convertir
-        console.warn('fileData n\'est pas un Blob, tentative de conversion');
         blob = new Blob([track.fileData]);
       }
       
@@ -47,10 +44,7 @@ export class AudioPlayerService {
       this.audio.src = this.currentBlobUrl;
     }
     
-    // Attendre un peu avant de jouer pour éviter les interruptions
-    this.audio.play().catch(err => {
-      console.error('Erreur de lecture:', err);
-    });
+    this.audio.play().catch(err => console.error('Erreur de lecture:', err));
   }
 
   togglePlay() {
@@ -58,6 +52,32 @@ export class AudioPlayerService {
       this.audio.pause();
     } else {
       this.audio.play().catch(err => console.error('Erreur play:', err));
+    }
+  }
+
+  // 2. Logique pour le morceau suivant
+  next() { 
+    const tracks = this.trackService.tracks(); // Liste des morceaux du signal
+    const current = this.currentTrack();
+    
+    if (current && tracks.length > 0) {
+      const currentIndex = tracks.findIndex(t => t.id === current.id);
+      // Calcul de l'index suivant (revient au début si on est à la fin)
+      const nextIndex = (currentIndex + 1) % tracks.length;
+      this.playTrack(tracks[nextIndex]);
+    }
+  }
+  
+  // 3. Logique pour le morceau précédent
+  previous() { 
+    const tracks = this.trackService.tracks();
+    const current = this.currentTrack();
+    
+    if (current && tracks.length > 0) {
+      const currentIndex = tracks.findIndex(t => t.id === current.id);
+      // Calcul de l'index précédent (va à la fin si on est au début)
+      const prevIndex = (currentIndex - 1 + tracks.length) % tracks.length;
+      this.playTrack(tracks[prevIndex]);
     }
   }
 
@@ -69,12 +89,4 @@ export class AudioPlayerService {
     this.audio.volume = val;
     this.volume.set(val);
   }
-
-  next() { 
-    console.log('Next track');
-  }
-  
-  previous() { 
-    console.log('Previous track');
-  }
-} 
+}
