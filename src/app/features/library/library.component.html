@@ -6,6 +6,7 @@
     </span>
   </header>
 
+  <!-- SECTION AJOUT -->
   <section class="bg-[#181818] p-8 rounded-xl shadow-2xl border border-white/5 mb-12">
     <h3 class="text-lg font-bold mb-6 text-gray-300">Ajouter un nouveau titre</h3>
     
@@ -48,7 +49,34 @@
     </form>
   </section>
 
+  <!-- SECTION RECHERCHE ET FILTRES -->
+  <div class="flex flex-col md:flex-row gap-4 mb-8 items-center bg-white/5 p-4 rounded-2xl border border-white/10">
+    <div class="relative flex-1 w-full">
+      <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">🔍</span>
+      <input 
+        type="text" 
+        placeholder="Rechercher un titre ou un artiste..."
+        (input)="updateSearch($any($event.target).value)"
+        class="w-full bg-black/40 text-white pl-12 pr-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand/50 border border-white/5 transition-all">
+    </div>
+
+    <div class="flex gap-2">
+      @for (genre of ['all', 'pop', 'rock', 'rap', 'jazz']; track genre) {
+        <button 
+          (click)="updateCategory(genre)"
+          [class.bg-brand]="trackService.selectedCategory() === genre"
+          [class.text-black]="trackService.selectedCategory() === genre"
+          [class.bg-white/5]="trackService.selectedCategory() !== genre"
+          class="px-4 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all border border-white/5 hover:border-brand/50">
+          {{ genre }}
+        </button>
+      }
+    </div>
+  </div>
+
+  <!-- SECTION LISTE DES TRACKS -->
   <div class="space-y-2">
+    <!-- En-tête du tableau -->
     <div class="grid grid-cols-12 px-4 py-2 text-gray-500 text-xs font-bold uppercase border-b border-white/5 mb-4">
       <div class="col-span-1">#</div>
       <div class="col-span-5">Titre / Artiste</div>
@@ -57,15 +85,18 @@
       <div class="col-span-2 text-right">Action</div>
     </div>
 
-    @for (track of trackService.tracks(); track track.id; let i = $index) {
+    <!-- Liste des tracks filtrés -->
+    @for (track of trackService.filteredTracks(); track track.id; let i = $index) {
       <div class="grid grid-cols-12 items-center px-4 py-3 rounded-md hover:bg-white/10 transition group">
         <div class="col-span-1 text-gray-400 font-medium">{{ i + 1 }}</div>
+        
         <div class="col-span-5">
           <a [routerLink]="['/track', track.id]" class="cursor-pointer group">
-           <p class="font-bold text-white group-hover:text-brand transition">{{ track.title }}</p>
-           <p class="text-sm text-gray-400 group-hover:text-gray-300">{{ track.artist }}</p>
+            <p class="font-bold text-white group-hover:text-brand transition">{{ track.title }}</p>
+            <p class="text-sm text-gray-400 group-hover:text-gray-300">{{ track.artist }}</p>
           </a>
         </div>
+        
         <div class="col-span-2">
           <span class="bg-white/5 px-3 py-1 rounded-full text-xs text-gray-300">{{ track.category }}</span>
         </div>
@@ -74,14 +105,16 @@
           {{ track.duration | duration }}
         </div>
 
-        <div class="col-span-2 text-right">
-         <button (click)="playTrack(track)" 
-             class="bg-brand/10 text-brand p-2 rounded-full opacity-0 group-hover:opacity-100 transition hover:bg-brand hover:text-black">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M8 5v14l11-7z"/>
-            </svg>
-         </button>
-        </div>
+        <div class="col-span-2 text-right flex justify-end gap-2">
+  <button (click)="playTrack(track)" 
+    class="bg-brand/10 text-brand p-2 rounded-full opacity-0 group-hover:opacity-100 transition hover:bg-brand hover:text-black">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+      <path d="M8 5v14l11-7z"/>
+    </svg>
+  </button>
+
+  
+</div>
       </div>
     } @empty {
       <div class="text-center py-20 bg-surface/50 rounded-xl border border-dashed border-gray-800">

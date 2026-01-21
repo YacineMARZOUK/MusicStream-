@@ -81,4 +81,20 @@ export class LibraryComponent {
   playTrack(track: Track) {
     this.playerService.playTrack(track);
   }
+
+confirmDelete(track: Track) {
+  if (confirm(`Voulez-vous vraiment supprimer "${track.title}" ?`)) {
+    this.trackService.deleteTrack(track.id);
+  }
+}
+
+
+updateSearch(query: string) {
+  this.trackService.searchQuery.set(query);
+}
+
+updateCategory(category: string) {
+  this.trackService.selectedCategory.set(category);
+}
+  
 }
